@@ -1,44 +1,68 @@
 import cv2
 import mediapipe as mp
 
-#video = cv2.VideoCapture("rtsp://leibnitz:leibnitz@192.168.1.7/stream1")
-video = cv2.VideoCapture(0)
+mpHands = mp.solutions.hands
 
-
-hand = mp.solutions.hands
-hands = hand.Hands(max_num_hands = 2)
-
+hands = mpHands.Hands()
 mpDraw = mp.solutions.drawing_utils
+
+cam = cv2.VideoCapture(0)
+x = []
+y = []
+
+text = ""
+k = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+idset = ["", "1", "12", "123", "1234", "01234", "0", "01", "012", "0123", "04", "4", "34", "014", "14", "234",  "0234"]
+op = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "+", "-", "*", "/"]
+
 
 
 while True:
-    success, img = video.read()
-    frameRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-    results = hands.process(frameRGB)
-    handPoints = results.multi_hand_landmarks
-    h, w, _ = img.shape
-    pontos = []
-    if handPoints:
-        for points in handPoints:
-            mpDraw.draw_landmarks(img, points)
-            #podemos enumerar esses pontos da seguinte forma
-            for id, cord in enumerate(points.landmark):
-                cx, cy = int(cord.x * w), int(cord.y * h)
-                #cv2.putText(img, str(id), (cx, cy + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-                pontos.append((cx,cy))
+    success, img = cam.read()
+    imgg = cv2.flip(img, 1)
+    imgRGB = cv2.cvtColor(imgg, cv2.COLOR_BGR2RGB)
+    results = hands.process(imgRGB)
 
-            dedos = [8,12,16,20]
-            contador = 0
-            if pontos:
-                if pontos[4][0] < pontos[3][0]:
-                    contador += 1
-                for x in dedos:
-                   if pontos[x][1] < pontos[x-2][1]:
-                       contador +=1
+    if results.multi_hand_landmarks:
+        for handLms in results.multi_hand_landmarks:
+            for id, lm in enumerate(handLms.landmark):
+                h, w, c = imgg.shape
+                if id == 0:
+                    x = []
+                    y = []
+                x.append(int((lm.x) * w))
+                y.append(int((1 - lm.y) * h))
 
-            cv2.rectangle(img, (80, 10), (200,110), (255, 0, 0), -1)
-            cv2.putText(img,str(contador),(100,100),cv2.FONT_HERSHEY_SIMPLEX,4,(255,255,255),5)
-            #print(contador)
+                #print(x,y)
 
-    cv2.imshow('Imagem',img)
+                if len(y) > 20:
+                    id = ""
+                    big = [x[3], y[8], y[12], y[16], y[20]]
+                    small = [x[4], y[6], y[10], y[14], y[18]]
+
+                    for i in range(len(big)):
+                        if big[i] > small[i]:
+                           id += str(i)
+
+                    k[idset.index(id)] += 1
+
+                    for i in range(len(k)):
+                        if k[i] > 20:
+                            if i == 15:
+                                ans = str(eval(text))
+                                text = "= " + ans
+                                for i in range(len(k)):
+                                    k[i] = 0
+                            else:
+                                text += op[i]
+                                for i in range(len(k)):
+                                    k[i] = 0
+                    
+            cv2.putText(imgg, text, (60,80), cv2.FONT_HERSHEY_TRIPLEX, 3, (0,0,0), 5)
+            mpDraw.draw_landmarks(imgg, handLms, mpHands.HAND_CONNECTIONS)
+
+    else:
+        text = " "
+
+    cv2.imshow("WebCam", imgg)
     cv2.waitKey(1)
