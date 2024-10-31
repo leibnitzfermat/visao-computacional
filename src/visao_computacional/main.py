@@ -12,8 +12,8 @@ y = []
 
 text = ""
 k = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-idset = ["", "1", "12", "123", "1234", "01234", "0", "01", "012", "0123", "04", "4", "34", "014", "14", "234",  "0234"]
-op = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "+", "-", "*", "/"]
+idset = ["", "1", "12", "123", "1234", "01234", "0", "01", "012", "0123", "04", "4", "34", "014", "14", "234"]
+op =    ["", "1", "2",    "3",  "4",    "5",    "6", "7",   "8",   "9",    "0", "+",  "-",  "*",  "/"]
 
 
 
@@ -33,7 +33,7 @@ while True:
                 x.append(int((lm.x) * w))
                 y.append(int((1 - lm.y) * h))
 
-                #print(x,y)
+                print(x,y)
 
                 if len(y) > 20:
                     id = ""
@@ -58,7 +58,7 @@ while True:
                                 for i in range(len(k)):
                                     k[i] = 0
                     
-            cv2.putText(imgg, text, (60,80), cv2.FONT_HERSHEY_TRIPLEX, 3, (0,0,0), 5)
+            cv2.putText(imgg, text, (100,120), cv2.FONT_HERSHEY_TRIPLEX, 3, (0,0,0), 5)
             mpDraw.draw_landmarks(imgg, handLms, mpHands.HAND_CONNECTIONS)
 
     else:

@@ -6,7 +6,7 @@ authors = [
     {name = "Leibnitz Amorim", email = "leibnitzfsa@gmail.com"},
 ]
 dependencies = [
-    "mediapipe>=0.10.14",
+    "mediapipe>=0.10.15",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
